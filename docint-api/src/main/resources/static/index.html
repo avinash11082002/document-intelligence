@@ -1214,8 +1214,11 @@
   </div>
 
   <script>
-    const API_BASE = window.location.origin; // http://localhost:8080
-    const QUERY_BASE = window.location.protocol + '//' + window.location.hostname + ':8082'; // http://localhost:8082
+    const API_BASE = window.location.origin;
+    // Adapt QUERY_BASE: Use :8082 if running directly on dev port :8080, else route via unified host (ports 80/443)
+    const QUERY_BASE = (window.location.port === '8080')
+      ? window.location.protocol + '//' + window.location.hostname + ':8082'
+      : window.location.origin;
     
     // Auth State
     let currentUser = JSON.parse(localStorage.getItem('docint_user') || 'null');
