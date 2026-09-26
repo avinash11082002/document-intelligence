@@ -188,12 +188,36 @@ services:
     networks:
       - docint-net
 
+  # ==========================================================
+  # Edge Reverse Proxy (Automatic HTTPS via Let's Encrypt)
+  # ==========================================================
+  caddy:
+    image: caddy:2.8-alpine
+    container_name: docint-caddy
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    environment:
+      DOMAIN_NAME: ${DOMAIN_NAME:-localhost}
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      - docint-api
+      - docint-query
+    networks:
+      - docint-net
+
 volumes:
   postgres_data:
   redis_data:
   es_data:
   kafka_data:
   upload_data:
+  caddy_data:
+  caddy_config:
 
 networks:
   docint-net:

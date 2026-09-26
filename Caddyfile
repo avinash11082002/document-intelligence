@@ -1,0 +1,11 @@
+{$DOMAIN_NAME:localhost} {
+    # Route query microservice
+    handle /api/query* {
+        reverse_proxy docint-query:8082
+    }
+
+    # Route document management, auth, actuator, and UI frontend
+    handle {
+        reverse_proxy docint-api:8080
+    }
+}
