@@ -1,0 +1,31 @@
+# docker-compose.debug.yml
+#
+# Remote debug override — starts all 3 services with JDWP agents exposed.
+# Usage:
+#   docker compose -f docker-compose.yml -f docker-compose.debug.yml up --build -d
+#
+# Then in IntelliJ:
+#   Run > Edit Configurations > + > Remote JVM Debug
+#   Host: localhost  Port: 5005 (api) / 5006 (worker) / 5007 (query)
+
+services:
+  docint-api:
+    environment:
+      JAVA_TOOL_OPTIONS: >-
+        -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005
+    ports:
+      - "5005:5005"   # Remote debug port for docint-api
+
+  docint-worker:
+    environment:
+      JAVA_TOOL_OPTIONS: >-
+        -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5006
+    ports:
+      - "5006:5006"   # Remote debug port for docint-worker
+
+  docint-query:
+    environment:
+      JAVA_TOOL_OPTIONS: >-
+        -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5007
+    ports:
+      - "5007:5007"   # Remote debug port for docint-query

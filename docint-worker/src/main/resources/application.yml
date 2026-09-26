@@ -1,0 +1,115 @@
+server:
+  port: ${SERVER_PORT:8081}
+
+spring:
+  application:
+    name: docint-worker
+
+  datasource:
+    url: jdbc:postgresql://${POSTGRES_HOST:localhost}:${POSTGRES_PORT:5432}/${POSTGRES_DB:docint}
+    username: ${POSTGRES_USER:docint}
+    password: ${POSTGRES_PASSWORD:docint_secret}
+    driver-class-name: org.postgresql.Driver
+    hikari:
+      maximum-pool-size: 10
+      minimum-idle: 2
+      connection-timeout: 30000
+
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    open-in-view: false
+
+  kafka:
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+      acks: all
+      retries: 3
+      properties:
+        spring.json.add.type.headers: false
+        enable.idempotence: true
+    consumer:
+      group-id: docint-worker-group
+      auto-offset-reset: earliest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      properties:
+        spring.json.trusted.packages: com.docint.*
+        spring.json.use.type.headers: false
+        spring.json.value.default.type: com.docint.common.event.DocumentEvent
+
+  jackson:
+    serialization:
+      write-dates-as-timestamps: false
+    default-property-inclusion: non_null
+
+app:
+  upload-dir: ${UPLOAD_DIR:/data/uploads}
+  kafka:
+    topics:
+      document-uploaded: document.uploaded
+      document-indexed: document.indexed
+      document-processing-dlq: document.processing.dlq
+
+  llm:
+    gemini:
+      api-key: ${GEMINI_API_KEY:}
+      chat-model: ${GEMINI_CHAT_MODEL:gemini-3.6-flash}
+      embedding-model: ${GEMINI_EMBEDDING_MODEL:gemini-embedding-2-preview}
+      fallback-embedding-model: ${GEMINI_FALLBACK_EMBEDDING_MODEL:gemini-embedding-001}
+      embedding-dimensions: 768
+    groq:
+      api-key: ${GROQ_API_KEY:}
+      base-url: https://api.groq.com/openai/v1
+      model: ${GROQ_CHAT_MODEL:openai/gpt-oss-20b}
+
+  search:
+    elasticsearch-host: ${ELASTICSEARCH_HOST:localhost}
+    elasticsearch-port: ${ELASTICSEARCH_PORT:9200}
+    index-name: document_chunks
+
+resilience4j:
+  circuitbreaker:
+    instances:
+      geminiLlm:
+        registerHealthIndicator: true
+        slidingWindowSize: 10
+        failureRateThreshold: 50
+        waitDurationInOpenState: 60s
+        permittedNumberOfCallsInHalfOpenState: 3
+      groqLlm:
+        registerHealthIndicator: true
+        slidingWindowSize: 10
+        failureRateThreshold: 50
+        waitDurationInOpenState: 30s
+        permittedNumberOfCallsInHalfOpenState: 3
+  retry:
+    instances:
+      geminiLlm:
+        maxAttempts: 3
+        waitDuration: 2s
+        enableExponentialBackoff: true
+        exponentialBackoffMultiplier: 2
+      groqLlm:
+        maxAttempts: 3
+        waitDuration: 2s
+        enableExponentialBackoff: true
+        exponentialBackoffMultiplier: 2
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,circuitbreakers
+  health:
+    circuitbreakers:
+      enabled: true
+
+logging:
+  level:
+    com.docint: DEBUG
+    org.springframework.kafka: WARN
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] [%X{correlationId:-}] %-5level %logger{36} - %msg%n"

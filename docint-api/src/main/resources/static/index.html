@@ -1,0 +1,1846 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document Intelligence Studio | AI-Powered RAG Platform</title>
+  <meta name="description" content="Production-grade AI-Powered Document Intelligence Platform with User Authentication, Asynchronous Kafka Processing, Vector Search, and Multi-Model RAG.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  
+  <!-- Markdown Renderer & Syntax Highlighter -->
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+
+  <style>
+    :root {
+      /* Sleek White & Professional Blue Design Tokens */
+      --bg-base: #f8fafc;
+      --bg-surface: #ffffff;
+      --bg-card: #ffffff;
+      --bg-card-hover: #f1f5f9;
+      --border-subtle: #e2e8f0;
+      --border-strong: #cbd5e1;
+      --border-focus: #2563eb;
+      
+      --accent-primary: #2563eb;
+      --accent-primary-hover: #1d4ed8;
+      --accent-blue-subtle: #eff6ff;
+      --accent-blue-border: #bfdbfe;
+      --accent-cyan: #0284c7;
+      --accent-cyan-hover: #0369a1;
+      --accent-emerald: #059669;
+      --accent-amber: #d97706;
+      --accent-rose: #e11d48;
+      
+      --text-main: #0f172a;
+      --text-secondary: #334155;
+      --text-muted: #64748b;
+      --text-dim: #94a3b8;
+      
+      --radius-sm: 8px;
+      --radius-md: 12px;
+      --radius-lg: 16px;
+      --radius-full: 9999px;
+      
+      --shadow-sm: 0 1px 3px 0 rgba(15, 23, 42, 0.05);
+      --shadow-card: 0 4px 20px -2px rgba(15, 23, 42, 0.05), 0 2px 6px -1px rgba(15, 23, 42, 0.02);
+      --shadow-float: 0 20px 25px -5px rgba(15, 23, 42, 0.08), 0 8px 10px -6px rgba(15, 23, 42, 0.03);
+      --shadow-glow: 0 0 25px rgba(37, 99, 235, 0.18);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background-color: var(--bg-base);
+      color: var(--text-main);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow-x: hidden;
+      background-image: 
+        radial-gradient(circle at 10% 0%, rgba(37, 99, 235, 0.04) 0%, transparent 45%),
+        radial-gradient(circle at 90% 100%, rgba(2, 132, 199, 0.03) 0%, transparent 45%);
+    }
+
+    /* Header */
+    header {
+      background: rgba(255, 255, 255, 0.92);
+      backdrop-filter: blur(14px);
+      border-bottom: 1px solid var(--border-subtle);
+      padding: 14px 28px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: sticky;
+      top: 0;
+      z-index: 40;
+      box-shadow: 0 1px 3px rgba(15, 23, 42, 0.02);
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .logo-badge {
+      width: 40px;
+      height: 40px;
+      background: linear-gradient(135deg, var(--accent-primary), var(--accent-cyan));
+      border-radius: var(--radius-md);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 1.2rem;
+      color: #fff;
+      box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25);
+    }
+
+    .brand-title {
+      font-size: 1.15rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      color: var(--text-main);
+    }
+
+    .brand-sub {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      font-weight: 500;
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: currentColor;
+    }
+
+    /* User Profile Pill */
+    .user-pill {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: #f1f5f9;
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-full);
+      padding: 4px 14px 4px 6px;
+    }
+
+    .user-avatar {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--accent-primary), var(--accent-cyan));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: #fff;
+    }
+
+    .user-name {
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: var(--text-main);
+    }
+
+    .btn-logout {
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      cursor: pointer;
+      font-size: 0.75rem;
+      font-weight: 600;
+      margin-left: 4px;
+      transition: color 0.15s;
+    }
+
+    .btn-logout:hover {
+      color: var(--accent-rose);
+    }
+
+    /* Layout */
+    .app-container {
+      max-width: 1560px;
+      margin: 0 auto;
+      padding: 24px;
+      display: grid;
+      grid-template-columns: 420px 1fr;
+      gap: 24px;
+      flex: 1;
+      width: 100%;
+    }
+
+    @media (max-width: 1100px) {
+      .app-container {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* Cards */
+    .glass-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-lg);
+      padding: 24px;
+      box-shadow: var(--shadow-card);
+      display: flex;
+      flex-direction: column;
+    }
+
+    .card-title-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 18px;
+    }
+
+    .card-title {
+      font-size: 1rem;
+      font-weight: 700;
+      letter-spacing: -0.01em;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--text-main);
+    }
+
+    /* Upload Zone */
+    .dropzone {
+      border: 2px dashed #93c5fd;
+      border-radius: var(--radius-md);
+      padding: 26px 16px;
+      text-align: center;
+      background: #f8fafc;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      margin-bottom: 20px;
+    }
+
+    .dropzone:hover, .dropzone.dragover {
+      border-color: var(--accent-primary);
+      background: var(--accent-blue-subtle);
+      transform: translateY(-1px);
+    }
+
+    .drop-icon {
+      font-size: 2.2rem;
+      margin-bottom: 8px;
+      display: inline-block;
+    }
+
+    .drop-text {
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+      margin-bottom: 4px;
+    }
+
+    .drop-hint {
+      font-size: 0.72rem;
+      color: var(--text-muted);
+    }
+
+    /* Document List */
+    .doc-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      overflow-y: auto;
+      max-height: 480px;
+      padding-right: 4px;
+    }
+
+    .doc-list::-webkit-scrollbar {
+      width: 5px;
+    }
+
+    .doc-list::-webkit-scrollbar-thumb {
+      background: var(--border-strong);
+      border-radius: 4px;
+    }
+
+    .doc-item {
+      background: #ffffff;
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-sm);
+      padding: 12px 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      transition: all 0.15s ease;
+      cursor: pointer;
+      position: relative;
+    }
+
+    .doc-item:hover {
+      background: var(--bg-card-hover);
+      border-color: var(--border-strong);
+    }
+
+    .doc-item.selected-doc {
+      background: var(--accent-blue-subtle);
+      border-color: var(--accent-primary);
+      box-shadow: 0 0 0 1px var(--accent-primary), 0 4px 12px rgba(37, 99, 235, 0.08);
+    }
+
+    .doc-header-line {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .doc-name-group {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      max-width: 250px;
+    }
+
+    .doc-radio {
+      accent-color: var(--accent-primary);
+      cursor: pointer;
+    }
+
+    .doc-name {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--text-main);
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .badge {
+      font-size: 0.65rem;
+      padding: 2px 8px;
+      border-radius: var(--radius-full);
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+    }
+
+    .badge-uploaded { background: #eff6ff; color: #1d4ed8; border: 1px solid #bfdbfe; }
+    .badge-processing { background: #fffbeb; color: #b45309; border: 1px solid #fde68a; }
+    .badge-extracting { background: #fefce8; color: #a16207; border: 1px solid #fef08a; }
+    .badge-chunking { background: #fff7ed; color: #c2410c; border: 1px solid #fed7aa; }
+    .badge-embedding { background: #faf5ff; color: #7e22ce; border: 1px solid #e9d5ff; }
+    .badge-indexing { background: #eff6ff; color: #1d4ed8; border: 1px solid #bfdbfe; }
+    .badge-retrying { background: #fdf4ff; color: #a21caf; border: 1px solid #f5d0fe; }
+    .badge-ready { background: #ecfdf5; color: #047857; border: 1px solid #a7f3d0; }
+    .badge-indexed { background: #ecfdf5; color: #047857; border: 1px solid #a7f3d0; }
+    .badge-failed { background: #fff1f2; color: #be123c; border: 1px solid #fecdd3; }
+
+    .doc-meta-line {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 0.72rem;
+      color: var(--text-muted);
+    }
+
+    .btn-focus-doc {
+      background: var(--accent-blue-subtle);
+      border: 1px solid var(--accent-blue-border);
+      color: var(--accent-primary);
+      font-size: 0.7rem;
+      font-weight: 600;
+      padding: 3px 9px;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .btn-focus-doc:hover {
+      background: var(--accent-primary);
+      color: #fff;
+      border-color: var(--accent-primary);
+    }
+
+    .btn-delete-doc {
+      background: #fff1f2;
+      border: 1px solid #fecdd3;
+      color: var(--accent-rose);
+      font-size: 0.7rem;
+      font-weight: 600;
+      padding: 3px 9px;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .btn-delete-doc:hover {
+      background: var(--accent-rose);
+      color: #fff;
+      border-color: var(--accent-rose);
+    }
+
+    /* RAG Console (Right Side) */
+    .query-console {
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+    }
+
+    /* Search Scope Control Bar */
+    .scope-control-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: #f8fafc;
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      padding: 10px 16px;
+    }
+
+    .scope-left {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .scope-label {
+      color: var(--text-muted);
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .scope-badge {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 12px;
+      border-radius: var(--radius-full);
+      font-size: 0.8rem;
+      font-weight: 600;
+      background: var(--accent-blue-subtle);
+      color: var(--accent-primary);
+      border: 1px solid var(--accent-blue-border);
+    }
+
+    .scope-badge.specific-doc {
+      background: #e0f2fe;
+      color: var(--accent-cyan);
+      border-color: #bae6fd;
+    }
+
+    .btn-reset-scope {
+      background: #ffffff;
+      border: 1px solid var(--border-strong);
+      color: var(--text-secondary);
+      cursor: pointer;
+      font-size: 0.75rem;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      padding: 5px 11px;
+      border-radius: var(--radius-sm);
+      transition: all 0.15s ease;
+    }
+
+    .btn-reset-scope:hover {
+      background: #f1f5f9;
+      color: var(--text-main);
+    }
+
+    .prompt-suggestions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .suggestion-chip {
+      background: #f1f5f9;
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-full);
+      padding: 6px 14px;
+      font-size: 0.75rem;
+      color: var(--text-secondary);
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .suggestion-chip:hover {
+      background: var(--accent-blue-subtle);
+      border-color: var(--accent-primary);
+      color: var(--accent-primary);
+    }
+
+    .query-box {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .query-input {
+      width: 100%;
+      background: #ffffff;
+      border: 1px solid var(--border-strong);
+      border-radius: var(--radius-md);
+      padding: 16px 130px 16px 18px;
+      font-size: 0.95rem;
+      color: var(--text-main);
+      font-family: inherit;
+      outline: none;
+      transition: border-color 0.2s ease, box-shadow 0.2s ease;
+      min-height: 58px;
+      resize: none;
+      box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+    }
+
+    .query-input:focus {
+      border-color: var(--accent-primary);
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.14);
+    }
+
+    .query-input::placeholder {
+      color: var(--text-dim);
+    }
+
+    .btn-submit {
+      position: absolute;
+      right: 10px;
+      top: 10px;
+      z-index: 10;
+      background: linear-gradient(135deg, var(--accent-primary), var(--accent-primary-hover));
+      color: #fff;
+      border: none;
+      border-radius: var(--radius-sm);
+      padding: 10px 18px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      box-shadow: 0 2px 6px rgba(37, 99, 235, 0.25);
+      transition: opacity 0.2s, transform 0.1s;
+    }
+
+    .btn-submit:hover {
+      opacity: 0.94;
+      transform: translateY(-1px);
+    }
+
+    .btn-submit:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .btn-cancel {
+      position: absolute;
+      right: 10px;
+      top: 10px;
+      z-index: 10;
+      background: #fff1f2;
+      color: var(--accent-rose);
+      border: 1px solid #fecdd3;
+      border-radius: var(--radius-sm);
+      padding: 10px 16px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: none;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.15s;
+    }
+
+    .btn-cancel:hover {
+      background: var(--accent-rose);
+      color: #fff;
+    }
+
+    /* Response Container */
+    .answer-card {
+      background: #ffffff;
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      min-height: 220px;
+      position: relative;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .telemetry-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--border-subtle);
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+
+    .telemetry-badges {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .badge-cache {
+      background: #e0f2fe;
+      color: var(--accent-cyan);
+      border: 1px solid #bae6fd;
+      padding: 3px 9px;
+      border-radius: var(--radius-full);
+      font-weight: 700;
+    }
+
+    .badge-latency {
+      font-family: 'JetBrains Mono', monospace;
+      color: var(--text-secondary);
+      font-weight: 600;
+    }
+
+    .badge-provider {
+      background: var(--accent-blue-subtle);
+      color: var(--accent-primary);
+      border: 1px solid var(--accent-blue-border);
+      padding: 3px 9px;
+      border-radius: var(--radius-full);
+      font-weight: 600;
+    }
+
+    .btn-copy {
+      background: #f8fafc;
+      border: 1px solid var(--border-subtle);
+      color: var(--text-secondary);
+      padding: 4px 10px;
+      border-radius: var(--radius-sm);
+      font-size: 0.75rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .btn-copy:hover {
+      background: #f1f5f9;
+      color: var(--text-main);
+    }
+
+    /* Markdown Answer Styling */
+    .markdown-content {
+      font-size: 0.95rem;
+      line-height: 1.7;
+      color: var(--text-secondary);
+    }
+
+    .markdown-content h1, .markdown-content h2, .markdown-content h3 {
+      color: var(--text-main);
+      margin-top: 18px;
+      margin-bottom: 10px;
+      font-weight: 700;
+      letter-spacing: -0.01em;
+    }
+
+    .markdown-content h3 {
+      font-size: 1.05rem;
+      color: var(--accent-primary);
+    }
+
+    .markdown-content ul, .markdown-content ol {
+      margin-left: 20px;
+      margin-bottom: 12px;
+    }
+
+    .markdown-content li {
+      margin-bottom: 6px;
+    }
+
+    .markdown-content p {
+      margin-bottom: 12px;
+    }
+
+    .markdown-content strong {
+      color: var(--text-main);
+      font-weight: 700;
+    }
+
+    .markdown-content code {
+      background: #f1f5f9;
+      font-family: 'JetBrains Mono', monospace;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-size: 0.85em;
+      color: var(--accent-cyan);
+      border: 1px solid var(--border-subtle);
+    }
+
+    .markdown-content pre {
+      background: #f8fafc;
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-sm);
+      padding: 14px;
+      overflow-x: auto;
+      margin: 14px 0;
+    }
+
+    .markdown-content pre code {
+      background: transparent;
+      padding: 0;
+      border: none;
+      color: var(--text-main);
+    }
+
+    .markdown-content table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 14px 0;
+      font-size: 0.88rem;
+    }
+
+    .markdown-content th, .markdown-content td {
+      border: 1px solid var(--border-subtle);
+      padding: 8px 12px;
+      text-align: left;
+    }
+
+    .markdown-content th {
+      background: #f8fafc;
+      font-weight: 700;
+      color: var(--text-main);
+    }
+
+    .markdown-content tr:nth-child(even) {
+      background: #fafafa;
+    }
+
+    .markdown-content hr {
+      border: none;
+      height: 1px;
+      background: var(--border-subtle);
+      margin: 18px 0;
+    }
+
+    /* Source Cards Drawer */
+    .sources-section {
+      margin-top: 12px;
+      padding-top: 16px;
+      border-top: 1px solid var(--border-subtle);
+    }
+
+    .sources-title {
+      font-size: 0.78rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-muted);
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-weight: 700;
+    }
+
+    .sources-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 12px;
+    }
+
+    .source-card {
+      background: #f8fafc;
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-sm);
+      padding: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .source-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.75rem;
+    }
+
+    .source-file {
+      font-weight: 600;
+      color: var(--accent-primary);
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      max-width: 170px;
+    }
+
+    .source-score {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.7rem;
+      background: #e2e8f0;
+      padding: 2px 6px;
+      border-radius: 4px;
+      color: var(--text-secondary);
+      font-weight: 600;
+    }
+
+    .source-snippet {
+      font-size: 0.75rem;
+      color: var(--text-secondary);
+      line-height: 1.45;
+      max-height: 85px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    /* Auth Modal */
+    .auth-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.45);
+      backdrop-filter: blur(8px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 100;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.25s ease;
+    }
+
+    .auth-overlay.active {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .auth-card {
+      position: relative;
+      background: #ffffff;
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-lg);
+      padding: 36px;
+      width: 100%;
+      max-width: 440px;
+      box-shadow: var(--shadow-float);
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      color: var(--text-main);
+    }
+
+    .auth-close-btn {
+      position: absolute;
+      top: 14px;
+      right: 18px;
+      background: none;
+      border: none;
+      color: var(--text-dim);
+      font-size: 1.5rem;
+      cursor: pointer;
+      line-height: 1;
+      padding: 4px;
+      transition: color 0.2s ease;
+    }
+
+    .auth-close-btn:hover {
+      color: var(--text-main);
+    }
+
+    .auth-header {
+      text-align: center;
+    }
+
+    .auth-title {
+      font-size: 1.3rem;
+      font-weight: 800;
+      color: var(--text-main);
+      letter-spacing: -0.02em;
+      margin-bottom: 6px;
+    }
+
+    .auth-sub {
+      font-size: 0.82rem;
+      color: var(--text-muted);
+    }
+
+    .auth-tabs {
+      display: flex;
+      background: #f1f5f9;
+      border-radius: var(--radius-sm);
+      padding: 4px;
+      border: 1px solid var(--border-subtle);
+    }
+
+    .auth-tab {
+      flex: 1;
+      text-align: center;
+      padding: 8px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      cursor: pointer;
+      border-radius: 6px;
+      transition: all 0.15s;
+    }
+
+    .auth-tab.active {
+      background: #ffffff;
+      color: var(--accent-primary);
+      box-shadow: 0 1px 3px rgba(15, 23, 42, 0.08);
+    }
+
+    .auth-form {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .form-label {
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+    }
+
+    .form-input {
+      background: #ffffff;
+      border: 1px solid var(--border-strong);
+      border-radius: var(--radius-sm);
+      padding: 12px 14px;
+      font-size: 0.9rem;
+      color: var(--text-main);
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    .form-input:focus {
+      border-color: var(--accent-primary);
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+    }
+
+    .btn-auth-submit {
+      background: linear-gradient(135deg, var(--accent-primary), var(--accent-primary-hover));
+      color: #fff;
+      border: none;
+      border-radius: var(--radius-sm);
+      padding: 12px;
+      font-size: 0.9rem;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 2px 6px rgba(37, 99, 235, 0.25);
+      transition: opacity 0.2s;
+      margin-top: 6px;
+    }
+
+    .btn-auth-submit:hover {
+      opacity: 0.94;
+    }
+
+    .demo-login-box {
+      text-align: center;
+      padding-top: 10px;
+      border-top: 1px solid var(--border-subtle);
+    }
+
+    .btn-demo {
+      background: var(--accent-blue-subtle);
+      border: 1px dashed var(--accent-blue-border);
+      color: var(--accent-primary);
+      font-size: 0.78rem;
+      font-weight: 600;
+      padding: 8px 16px;
+      border-radius: var(--radius-full);
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .btn-demo:hover {
+      background: #dbeafe;
+    }
+
+    /* Toast Notification Container */
+    .toast-container {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      z-index: 1000;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      max-width: 380px;
+    }
+
+    .toast {
+      background: #ffffff;
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      padding: 14px 18px;
+      box-shadow: var(--shadow-float);
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      animation: slideIn 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+      transition: opacity 0.2s, transform 0.2s;
+    }
+
+    @keyframes slideIn {
+      from { transform: translateX(50px); opacity: 0; }
+      to { transform: translateX(0); opacity: 1; }
+    }
+
+    .toast-success { border-left: 4px solid var(--accent-emerald); }
+    .toast-error { border-left: 4px solid var(--accent-rose); }
+    .toast-warning { border-left: 4px solid var(--accent-amber); }
+    .toast-info { border-left: 4px solid var(--accent-primary); }
+
+    .toast-icon { font-size: 1.1rem; }
+    .toast-body { display: flex; flex-direction: column; gap: 2px; flex: 1; }
+    .toast-title { font-size: 0.85rem; font-weight: 700; color: var(--text-main); }
+    .toast-msg { font-size: 0.75rem; color: var(--text-secondary); line-height: 1.4; }
+
+    .spinner {
+      display: inline-block;
+      width: 14px;
+      height: 14px;
+      border: 2px solid rgba(37, 99, 235, 0.25);
+      border-radius: 50%;
+      border-top-color: var(--accent-primary);
+      animation: spin 0.8s ease-in-out infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Toast Container -->
+  <div class="toast-container" id="toastContainer"></div>
+
+  <!-- Header -->
+  <header>
+    <div class="brand">
+      <div class="logo-badge">DI</div>
+      <div>
+        <div class="brand-title">Document Intelligence Studio</div>
+      </div>
+    </div>
+
+    <div class="header-actions">
+
+      <!-- Logged in User Pill -->
+      <div class="user-pill" id="userPill" style="display: none;">
+        <div class="user-avatar" id="userAvatar">A</div>
+        <span class="user-name" id="userNameDisplay">avinash</span>
+        <button class="btn-logout" onclick="logout()" title="Sign Out">Sign Out</button>
+      </div>
+
+      <button id="headerSignInBtn" class="btn-focus-doc" onclick="showAuthModal('login')" style="padding: 6px 14px;">
+        Sign In / Register
+      </button>
+    </div>
+  </header>
+
+  <!-- Main Container -->
+  <div class="app-container">
+    
+    <!-- Left: Document Management -->
+    <div class="glass-card">
+      <div class="card-title-row">
+        <div class="card-title">
+          <span>📁</span>
+          <span>Document Vault</span>
+        </div>
+        <button id="refreshDocsBtn" style="background: none; border: none; color: var(--text-muted); cursor: pointer; font-size: 0.8rem;">
+          ↻ Refresh
+        </button>
+      </div>
+
+      <!-- Drag & Drop Upload Zone -->
+      <div class="dropzone" id="dropzone">
+        <input type="file" id="fileInput" style="display: none;" accept=".pdf,.txt,.png,.jpg,.jpeg,.tiff,.tif" />
+        <div class="drop-icon">📄</div>
+        <div class="drop-text"><strong>Click to upload</strong> or drag & drop</div>
+        <div class="drop-hint">PDF, TXT, PNG, JPG, TIFF (Max 100MB)</div>
+      </div>
+
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+        <span style="font-size: 0.75rem; text-transform: uppercase; color: var(--text-dim); font-weight: 700; letter-spacing: 0.05em;">
+          Indexed Documents
+        </span>
+        <span style="font-size: 0.7rem; color: var(--text-dim);">
+          Click to focus search
+        </span>
+      </div>
+
+      <div class="doc-list" id="docList">
+        <div style="text-align: center; color: var(--text-dim); padding: 24px; font-size: 0.85rem;">
+          Loading documents...
+        </div>
+      </div>
+    </div>
+
+    <!-- Right: RAG Q&A Console -->
+    <div class="glass-card query-console">
+      <div class="card-title-row">
+        <div class="card-title">
+          <span>⚡</span>
+          <span>RAG Intelligence Console</span>
+        </div>
+      </div>
+
+      <!-- Search Scope Control Bar -->
+      <div class="scope-control-bar">
+        <div class="scope-left">
+          <span class="scope-label">Query Scope:</span>
+          <div class="scope-badge" id="activeScopeBadge">
+            <span>🌐</span>
+            <span id="scopeLabel">All Documents in Vault</span>
+          </div>
+        </div>
+        <button class="btn-reset-scope" id="resetScopeBtn" onclick="resetScopeToAll()" style="display: none;">
+          <span>✕ Reset to All Documents</span>
+        </button>
+      </div>
+
+      <!-- Prompt Suggestions -->
+      <div class="prompt-suggestions">
+        <div class="suggestion-chip" onclick="setPrompt('Summarize the key takeaways and highlights from this document.')">
+          📊 Document Summary
+        </div>
+        <div class="suggestion-chip" onclick="setPrompt('Analyze reasons this candidate or proposal might be filtered out or rejected.')">
+          🎯 ATS / Gap Analysis
+        </div>
+        <div class="suggestion-chip" onclick="setPrompt('Extract all critical metrics, dates, payment terms, and organizations mentioned.')">
+          🗓️ Entity & Metric Extraction
+        </div>
+      </div>
+
+      <!-- Query Box -->
+      <div class="query-box">
+        <textarea id="queryInput" class="query-input" placeholder="Ask any natural-language question across your indexed documents..."></textarea>
+        <button id="submitQueryBtn" class="btn-submit" onclick="executeRagQuery()">
+          <span>Run RAG</span>
+          <span>→</span>
+        </button>
+        <button id="cancelQueryBtn" class="btn-cancel" onclick="cancelQuery()" title="Cancel the current query">
+          <span>✕</span>
+          <span>Cancel</span>
+        </button>
+      </div>
+
+      <!-- Rendered Answer Card -->
+      <div class="answer-card" id="answerCard">
+        <div class="telemetry-row">
+          <div class="telemetry-badges">
+
+            <span class="badge-cache" id="cacheBadge" style="display: none;">⚡ REDIS CACHE HIT</span>
+          </div>
+          <div style="display: flex; align-items: center; gap: 12px;">
+            <div class="badge-latency" id="latencyBadge">Ready</div>
+            <button class="btn-copy" id="copyBtn" onclick="copyAnswer()" style="display: none;">Copy Answer</button>
+          </div>
+        </div>
+
+        <div class="markdown-content" id="answerContent">
+          <p style="color: var(--text-dim); font-style: italic;">
+            Upload documents on the left and ask natural language questions above. The RAG pipeline will perform hybrid BM25 + k-NN vector search and synthesize grounded answers with citations.
+          </p>
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+
+  <!-- Authentication Modal -->
+  <div class="auth-overlay" id="authOverlay">
+    <div class="auth-card">
+      <button class="auth-close-btn" onclick="hideAuthModal()" title="Close">&times;</button>
+      <div class="auth-header">
+        <div class="auth-title">Document Intelligence Studio</div>
+        <div class="auth-sub" id="authSub">Sign in to access your multi-tenant document vault</div>
+      </div>
+
+      <div class="auth-tabs">
+        <div class="auth-tab active" id="tabLogin" onclick="switchAuthTab('login')">Sign In</div>
+        <div class="auth-tab" id="tabRegister" onclick="switchAuthTab('register')">Create Account</div>
+      </div>
+
+      <form class="auth-form" id="authForm" onsubmit="handleAuthSubmit(event)">
+        <div class="form-group">
+          <label class="form-label" for="authUsername">Username</label>
+          <input type="text" id="authUsername" class="form-input" placeholder="e.g. avinash" required autocomplete="username" />
+        </div>
+
+        <div class="form-group" id="emailGroup" style="display: none;">
+          <label class="form-label" for="authEmail">Email Address</label>
+          <input type="email" id="authEmail" class="form-input" placeholder="e.g. avinash@example.com" autocomplete="email" />
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="authPassword">Password</label>
+          <input type="password" id="authPassword" class="form-input" placeholder="••••••••" required autocomplete="current-password" />
+        </div>
+
+        <button type="submit" class="btn-auth-submit" id="authSubmitBtn">Sign In</button>
+      </form>
+
+      <div class="demo-login-box">
+        <button class="btn-demo" onclick="demoLogin()">⚡ Instant Demo Login (avinash)</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const API_BASE = window.location.origin; // http://localhost:8080
+    const QUERY_BASE = window.location.protocol + '//' + window.location.hostname + ':8082'; // http://localhost:8082
+    
+    // Auth State
+    let currentUser = JSON.parse(localStorage.getItem('docint_user') || 'null');
+    let authToken = localStorage.getItem('docint_token') || null;
+    let authMode = 'login'; // 'login' or 'register'
+
+    // Document Scope State
+    let activeDocumentId = null; // null = all documents
+    let activeDocumentName = null;
+    let documentsCache = [];
+    let latestAnswerMarkdown = '';
+
+    // Elements
+    const dropzone = document.getElementById('dropzone');
+    const fileInput = document.getElementById('fileInput');
+    const docList = document.getElementById('docList');
+    const refreshDocsBtn = document.getElementById('refreshDocsBtn');
+    const queryInput = document.getElementById('queryInput');
+    const submitBtn = document.getElementById('submitQueryBtn');
+    const cancelQueryBtn = document.getElementById('cancelQueryBtn');
+    const answerContent = document.getElementById('answerContent');
+    const latencyBadge = document.getElementById('latencyBadge');
+    const cacheBadge = document.getElementById('cacheBadge');
+
+    const activeScopeBadge = document.getElementById('activeScopeBadge');
+    let scopeLabel = document.getElementById('scopeLabel');
+    const resetScopeBtn = document.getElementById('resetScopeBtn');
+    const copyBtn = document.getElementById('copyBtn');
+    const authOverlay = document.getElementById('authOverlay');
+    const userPill = document.getElementById('userPill');
+    const headerSignInBtn = document.getElementById('headerSignInBtn');
+    const userNameDisplay = document.getElementById('userNameDisplay');
+    const userAvatar = document.getElementById('userAvatar');
+
+    // Toast Notifications System
+    function showToast(type, title, message) {
+      const container = document.getElementById('toastContainer');
+      const toast = document.createElement('div');
+      toast.className = `toast toast-${type}`;
+      
+      const icons = {
+        success: '✅',
+        error: '❌',
+        warning: '⚠️',
+        info: 'ℹ️'
+      };
+
+      toast.innerHTML = `
+        <div class="toast-icon">${icons[type] || 'ℹ️'}</div>
+        <div class="toast-body">
+          <div class="toast-title">${title}</div>
+          <div class="toast-msg">${message}</div>
+        </div>
+      `;
+
+      container.appendChild(toast);
+      setTimeout(() => {
+        toast.style.opacity = '0';
+        toast.style.transform = 'translateX(50px)';
+        setTimeout(() => toast.remove(), 200);
+      }, 4000);
+    }
+
+    // --- Authentication Handling ---
+    function updateAuthStateUI(openLoginIfLoggedOut = false) {
+      if (currentUser && authToken) {
+        userPill.style.display = 'flex';
+        headerSignInBtn.style.display = 'none';
+        userNameDisplay.innerText = currentUser.username;
+        userAvatar.innerText = currentUser.username.charAt(0).toUpperCase();
+        authOverlay.classList.remove('active');
+        loadDocuments();
+      } else {
+        userPill.style.display = 'none';
+        headerSignInBtn.style.display = 'inline-block';
+        if (openLoginIfLoggedOut) {
+          showAuthModal('login');
+        } else {
+          authOverlay.classList.remove('active');
+        }
+        renderDocumentList();
+      }
+    }
+
+    function showAuthModal(mode = 'login') {
+      authMode = mode;
+      switchAuthTab(mode);
+      authOverlay.classList.add('active');
+    }
+
+    function hideAuthModal() {
+      authOverlay.classList.remove('active');
+    }
+
+    authOverlay.addEventListener('click', (e) => {
+      if (e.target === authOverlay) hideAuthModal();
+    });
+
+    function switchAuthTab(mode) {
+      authMode = mode;
+      const tabLogin = document.getElementById('tabLogin');
+      const tabRegister = document.getElementById('tabRegister');
+      const emailGroup = document.getElementById('emailGroup');
+      const submitBtn = document.getElementById('authSubmitBtn');
+      const authSub = document.getElementById('authSub');
+
+      if (mode === 'login') {
+        tabLogin.classList.add('active');
+        tabRegister.classList.remove('active');
+        emailGroup.style.display = 'none';
+        document.getElementById('authEmail').required = false;
+        submitBtn.innerText = 'Sign In';
+        authSub.innerText = 'Sign in to access your multi-tenant document vault';
+      } else {
+        tabRegister.classList.add('active');
+        tabLogin.classList.remove('active');
+        emailGroup.style.display = 'flex';
+        document.getElementById('authEmail').required = true;
+        submitBtn.innerText = 'Create Account';
+        authSub.innerText = 'Register an account to securely store & query your documents';
+      }
+    }
+
+    async function handleAuthSubmit(e) {
+      e.preventDefault();
+      const username = document.getElementById('authUsername').value.trim();
+      const password = document.getElementById('authPassword').value;
+      const email = document.getElementById('authEmail').value.trim();
+      const submitBtn = document.getElementById('authSubmitBtn');
+
+      submitBtn.disabled = true;
+      submitBtn.innerText = 'Authenticating...';
+
+      try {
+        const endpoint = authMode === 'register' ? '/api/auth/register' : '/api/auth/login';
+        const payload = authMode === 'register' 
+          ? { username, email, password }
+          : { usernameOrEmail: username, password };
+
+        const res = await fetch(`${API_BASE}${endpoint}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+
+        const data = await res.json();
+
+        if (!res.ok) {
+          const errMsg = data.message || (res.status === 404 ? `Account '${username}' not found. Please create an account.` : `Authentication failed (${res.status})`);
+          if (res.status === 404 && authMode === 'login') {
+            // Auto switch to register tab
+            setTimeout(() => {
+              showAuthModal('register');
+              document.getElementById('authUsername').value = username;
+            }, 1200);
+          }
+          throw new Error(errMsg);
+        }
+
+        authToken = data.accessToken || data.token;
+        currentUser = {
+          id: data.userId,
+          username: data.username,
+          email: data.email
+        };
+
+        localStorage.setItem('docint_token', authToken);
+        localStorage.setItem('docint_user', JSON.stringify(currentUser));
+
+        const welcomeMsg = authMode === 'register'
+          ? `Account created! Welcome to DocMind, ${currentUser.username} 🎉`
+          : `Welcome back, ${currentUser.username}!`;
+        showToast('success', authMode === 'register' ? 'Account Created' : 'Signed In', welcomeMsg);
+        updateAuthStateUI();
+      } catch (err) {
+        showToast('error', 'Authentication Failed', err.message);
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.innerText = authMode === 'register' ? 'Create Account' : 'Sign In';
+      }
+    }
+
+    async function demoLogin() {
+      document.getElementById('authUsername').value = 'avinash';
+      document.getElementById('authPassword').value = 'avinash123';
+      
+      // Auto register demo user if not registered yet, or login
+      try {
+        const regRes = await fetch(`${API_BASE}/api/auth/register`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            username: 'avinash',
+            email: 'avinash@walmart.com',
+            password: 'avinash123'
+          })
+        });
+
+        let data;
+        if (regRes.ok) {
+          data = await regRes.json();
+        } else {
+          const logRes = await fetch(`${API_BASE}/api/auth/login`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              usernameOrEmail: 'avinash',
+              password: 'avinash123'
+            })
+          });
+          data = await logRes.json();
+          if (!logRes.ok) {
+            throw new Error(data.message || 'Demo login failed');
+          }
+        }
+
+        authToken = data.accessToken || data.token;
+        currentUser = {
+          id: data.userId,
+          username: data.username,
+          email: data.email
+        };
+
+        localStorage.setItem('docint_token', authToken);
+        localStorage.setItem('docint_user', JSON.stringify(currentUser));
+
+        showToast('success', 'Demo Login', `Signed in as ${currentUser.username}`);
+        updateAuthStateUI();
+      } catch (e) {
+        showToast('error', 'Demo Login Error', e.message);
+      }
+    }
+
+    function logout() {
+      localStorage.removeItem('docint_token');
+      localStorage.removeItem('docint_user');
+      currentUser = null;
+      authToken = null;
+      documentsCache = [];
+      queryInput.value = '';
+      answerContent.innerHTML = `<div class="empty-state">
+        <div class="empty-icon">💡</div>
+        <div class="empty-title">Ask Grounded Questions</div>
+        <div class="empty-desc">Sign in and upload documents to extract intelligent insights and answers.</div>
+      </div>`;
+      resetScopeToAll();
+      updateAuthStateUI(false);
+      showToast('info', 'Signed Out', 'You have been signed out successfully.');
+    }
+
+    // --- Drag & Drop File Upload ---
+    dropzone.addEventListener('click', () => fileInput.click());
+    dropzone.addEventListener('dragover', (e) => { e.preventDefault(); dropzone.classList.add('dragover'); });
+    dropzone.addEventListener('dragleave', () => dropzone.classList.remove('dragover'));
+    dropzone.addEventListener('drop', (e) => {
+      e.preventDefault();
+      dropzone.classList.remove('dragover');
+      if (e.dataTransfer.files.length) uploadFile(e.dataTransfer.files[0]);
+    });
+    fileInput.addEventListener('change', () => {
+      if (fileInput.files.length) uploadFile(fileInput.files[0]);
+    });
+
+    refreshDocsBtn.addEventListener('click', loadDocuments);
+
+    // Upload Document
+    async function uploadFile(file) {
+      if (!currentUser) {
+        showToast('warning', 'Login Required', 'Please sign in before uploading documents.');
+        showAuthModal('login');
+        return;
+      }
+
+      if (file.size > 100 * 1024 * 1024) {
+        showToast('error', 'File Too Large', 'Maximum allowed file size is 100MB.');
+        return;
+      }
+
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('ownerId', currentUser.username);
+
+      dropzone.innerHTML = `<div class="spinner"></div><div class="drop-text" style="margin-top: 8px;">Uploading & Publishing Kafka Event...</div>`;
+
+      try {
+        const res = await fetch(`${API_BASE}/api/documents`, {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${authToken}`
+          },
+          body: formData
+        });
+
+        if (res.status === 409) {
+          showToast('warning', 'Duplicate Content', `"${file.name}" has already been indexed for your account (Deduplicated).`);
+        } else if (!res.ok) {
+          const errData = await res.json().catch(() => ({}));
+          throw new Error(errData.message || `Upload failed with HTTP ${res.status}`);
+        } else {
+          const data = await res.json();
+          showToast('success', 'Document Uploaded', `"${data.filename}" is queued for Kafka OCR & Vector indexing.`);
+          
+          // Auto-select this newly uploaded document as the active focus!
+          setDocumentScope(data.id, data.filename);
+          pollDocumentStatus(data.id);
+        }
+      } catch (err) {
+        showToast('error', 'Upload Failed', err.message);
+      } finally {
+        dropzone.innerHTML = `
+          <input type="file" id="fileInput" style="display: none;" accept=".pdf,.txt,.png,.jpg,.jpeg,.tiff,.tif" />
+          <div class="drop-icon">📄</div>
+          <div class="drop-text"><strong>Click to upload</strong> or drag & drop</div>
+          <div class="drop-hint">PDF, TXT, PNG, JPG, TIFF (Max 100MB)</div>
+        `;
+        document.getElementById('fileInput').addEventListener('change', (e) => {
+          if (e.target.files.length) uploadFile(e.target.files[0]);
+        });
+        loadDocuments();
+      }
+    }
+
+    // Set Scope to a single document
+    function setDocumentScope(docId, filename) {
+      activeDocumentId = docId;
+      activeDocumentName = filename;
+      
+      activeScopeBadge.classList.add('specific-doc');
+      activeScopeBadge.innerHTML = `<span>📄</span> <span>Only: ${filename}</span>`;
+      resetScopeBtn.style.display = 'inline-flex';
+      
+      renderDocumentList();
+      showToast('info', 'Query Focus Locked', `RAG questions will now only search "${filename}".`);
+    }
+
+    // Reset Scope to all documents
+    function resetScopeToAll() {
+      activeDocumentId = null;
+      activeDocumentName = null;
+
+      activeScopeBadge.classList.remove('specific-doc');
+      activeScopeBadge.innerHTML = `<span>🌐</span> <span id="scopeLabel">All Documents in Vault (${documentsCache.length})</span>`;
+      // re-bind stale reference after innerHTML replacement
+      scopeLabel = document.getElementById('scopeLabel');
+      resetScopeBtn.style.display = 'none';
+
+      renderDocumentList();
+    }
+
+    // Load Documents
+    async function loadDocuments() {
+      if (!currentUser || !authToken) return;
+
+      try {
+        const res = await fetch(`${API_BASE}/api/documents`, {
+          headers: {
+            'Authorization': `Bearer ${authToken}`
+          }
+        });
+        if (!res.ok) return;
+        const data = await res.json();
+        // API returns a Spring Page object — extract the .content array
+        documentsCache = Array.isArray(data) ? data : (data.content || []);
+        renderDocumentList();
+
+        if (!activeDocumentId) {
+          const sl = document.getElementById('scopeLabel');
+          if (sl) sl.innerText = `All Documents in Vault (${documentsCache.length})`;
+        }
+      } catch (err) {
+        console.error('Failed to load docs', err);
+      }
+    }
+
+    // Render Document List in Vault
+    function renderDocumentList() {
+      if (!currentUser) {
+        docList.innerHTML = `<div style="text-align: center; color: var(--text-dim); padding: 32px 16px; font-size: 0.85rem;">
+          <div style="font-size: 1.8rem; margin-bottom: 8px;">🔒</div>
+          <div style="font-weight: 600; color: var(--text-muted); margin-bottom: 6px;">Sign In to View Vault</div>
+          <div>Please <a href="javascript:void(0)" onclick="showAuthModal('login')" style="color: var(--accent-primary); text-decoration: underline; font-weight: 500;">sign in or register</a> to access your documents.</div>
+        </div>`;
+        return;
+      }
+
+      if (!documentsCache || documentsCache.length === 0) {
+        docList.innerHTML = `<div style="text-align: center; color: var(--text-dim); padding: 24px; font-size: 0.85rem;">No documents uploaded yet for "${currentUser.username}".</div>`;
+        return;
+      }
+
+      docList.innerHTML = documentsCache.map(d => {
+        const badgeClass = `badge-${d.status.toLowerCase()}`;
+        const isSelected = activeDocumentId === d.id;
+        const safeId = d.id;
+        const safeName = (d.filename || 'Document').replace(/\\/g, '\\\\').replace(/'/g, "\\'");
+        const pageInfo = d.pageCount ? `${d.pageCount} ${d.pageCount === 1 ? 'page' : 'pages'} • ` : '';
+        return `
+          <div class="doc-item ${isSelected ? 'selected-doc' : ''}" onclick="setDocumentScope('${safeId}', '${safeName}')">
+            <div class="doc-header-line">
+              <div class="doc-name-group">
+                <input type="radio" name="docSelectionRadio" class="doc-radio" ${isSelected ? 'checked' : ''} onclick="event.stopPropagation(); setDocumentScope('${safeId}', '${safeName}')" />
+                <span class="doc-name" title="${d.filename}">📄 ${d.filename}</span>
+              </div>
+              <span class="badge ${badgeClass}">${d.status}</span>
+            </div>
+            ${d.summary ? `<div style="font-size: 0.72rem; color: var(--text-muted); margin: 4px 0; line-height: 1.3;">${d.summary.length > 110 ? d.summary.substring(0, 107) + '...' : d.summary}</div>` : ''}
+            <div class="doc-meta-line">
+              <span>${pageInfo}${d.documentType || 'general'} • ${d.chunkCount ? d.chunkCount + ' chunks' : 'parsing...'}</span>
+              <div style="display: flex; gap: 6px; align-items: center;">
+                <button class="btn-focus-doc" onclick="event.stopPropagation(); setDocumentScope('${safeId}', '${safeName}')">
+                  ${isSelected ? '✓ Active Focus' : 'Focus Doc'}
+                </button>
+                <button class="btn-delete-doc" onclick="event.stopPropagation(); deleteDocument('${safeId}', '${safeName}')" title="Permanently delete this document">
+                  🗑 Delete
+                </button>
+              </div>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    // Delete Document
+    async function deleteDocument(docId, filename) {
+      if (!currentUser || !authToken) return;
+      if (!confirm(`Are you sure you want to permanently delete "${filename}"? This cannot be undone.`)) return;
+
+      try {
+        const res = await fetch(`${API_BASE}/api/documents/${docId}`, {
+          method: 'DELETE',
+          headers: {
+            'Authorization': `Bearer ${authToken}`
+          }
+        });
+
+        if (res.status === 204 || res.ok) {
+          // If deleted doc was the active scope, reset to all
+          if (activeDocumentId === docId) resetScopeToAll();
+          showToast('success', 'Document Deleted', `"${filename}" has been permanently removed.`);
+          await loadDocuments();
+        } else {
+          const errData = await res.json().catch(() => ({}));
+          throw new Error(errData.message || `Delete failed with HTTP ${res.status}`);
+        }
+      } catch (err) {
+        showToast('error', 'Delete Failed', err.message);
+      }
+    }
+
+    // Poll status until READY
+    function pollDocumentStatus(docId) {
+      const interval = setInterval(async () => {
+        try {
+          const res = await fetch(`${API_BASE}/api/documents/${docId}`, {
+            headers: {
+              'Authorization': `Bearer ${authToken}`
+            }
+          });
+          if (res.ok) {
+            const data = await res.json();
+            loadDocuments();
+            if (data.status === 'READY' || data.status === 'INDEXED') {
+              showToast('success', 'Ready for RAG', `"${data.filename}" is indexed and ready for querying.`);
+              clearInterval(interval);
+            } else if (data.status === 'FAILED') {
+              showToast('error', 'Processing Failed', `Failed to process "${data.filename}". ${data.failureReason || ''}`);
+              clearInterval(interval);
+            }
+          }
+        } catch (e) {
+          clearInterval(interval);
+        }
+      }, 2500);
+    }
+
+    // Prompt helpers
+    function setPrompt(text) {
+      queryInput.value = text;
+      queryInput.focus();
+    }
+
+    // AbortController for cancellable queries
+    let activeAbortController = null;
+
+    function cancelQuery() {
+      if (activeAbortController) {
+        activeAbortController.abort('cancelled');
+        activeAbortController = null;
+      }
+      setQueryRunning(false);
+      answerContent.innerHTML = `<div style="color: var(--text-dim); padding: 12px; font-style: italic;">Query cancelled by user.</div>`;
+      showToast('info', 'Query Cancelled', 'The RAG query was stopped.');
+    }
+
+    function setQueryRunning(running) {
+      submitBtn.style.display = running ? 'none' : 'inline-flex';
+      cancelQueryBtn.style.display = running ? 'inline-flex' : 'none';
+    }
+
+    // Execute RAG Query
+    async function executeRagQuery() {
+      if (!currentUser) {
+        showToast('warning', 'Login Required', 'Please sign in before asking questions.');
+        showAuthModal('login');
+        return;
+      }
+
+      const question = queryInput.value.trim();
+      if (!question) {
+        showToast('warning', 'Empty Query', 'Please enter a natural language question.');
+        return;
+      }
+
+      // Set up AbortController for manual cancel + auto-timeout
+      activeAbortController = new AbortController();
+      const signal = activeAbortController.signal;
+
+      // 30s client-side hard timeout
+      const timeoutId = setTimeout(() => {
+        if (activeAbortController) {
+          activeAbortController.abort('timeout');
+          activeAbortController = null;
+        }
+      }, 30000);
+
+      setQueryRunning(true);
+
+      const scopeDesc = activeDocumentName ? `"${activeDocumentName}"` : 'all indexed vault files';
+      answerContent.innerHTML = `<div style="display: flex; align-items: center; gap: 10px; color: var(--text-muted);"><div class="spinner"></div> <span>Synthesizing grounded answer from ${scopeDesc}...</span></div>`;
+      copyBtn.style.display = 'none';
+
+      const t0 = performance.now();
+
+      const payload = {
+        ownerId: currentUser.username,
+        question: question
+      };
+
+      // Add documentId if scope is locked to a specific file
+      if (activeDocumentId) {
+        const focusedDoc = documentsCache.find(d => d.id === activeDocumentId);
+        if (focusedDoc && focusedDoc.status !== 'READY' && focusedDoc.status !== 'INDEXED') {
+          showToast('warning', 'Document Still Processing',
+            `"${focusedDoc.filename}" is ${focusedDoc.status.toLowerCase()} and not yet searchable. Querying all your other indexed documents instead.`);
+        } else {
+          payload.documentId = activeDocumentId;
+        }
+      }
+
+      try {
+        const res = await fetch(`${QUERY_BASE}/api/query`, {
+          method: 'POST',
+          signal,
+          headers: {
+            'Content-Type': 'application/json',
+            'X-Owner-Id': currentUser.username,
+            'Authorization': `Bearer ${authToken}`
+          },
+          body: JSON.stringify(payload)
+        });
+
+        const t1 = performance.now();
+        const durationMs = Math.round(t1 - t0);
+
+        if (!res.ok) {
+          const errData = await res.json().catch(() => ({}));
+          throw new Error(errData.message || `Query failed with HTTP status ${res.status}`);
+        }
+
+        const data = await res.json();
+        latestAnswerMarkdown = data.answer;
+
+        // Render Markdown Answer
+        answerContent.innerHTML = marked.parse(data.answer);
+        hljs.highlightAll();
+
+        // Update Telemetry
+        latencyBadge.innerText = `${data.latencyMs || durationMs} ms`;
+
+
+        if (data.cached) {
+          cacheBadge.style.display = 'inline-block';
+        } else {
+          cacheBadge.style.display = 'none';
+        }
+
+        copyBtn.style.display = 'inline-block';
+
+      } catch (err) {
+        if (err.name === 'AbortError' || activeAbortController === null) {
+          const isTimeout = err.message === 'timeout' || String(err).includes('timeout');
+          const reason = isTimeout
+            ? 'Query timed out after 30 seconds.'
+            : 'Query was cancelled by you.';
+          showToast('info', isTimeout ? 'Query Timed Out' : 'Query Cancelled', reason);
+          answerContent.innerHTML = `<div style="color: var(--text-dim); padding: 12px; font-style: italic;">${reason}</div>`;
+        } else {
+          showToast('error', 'RAG Query Failed', err.message);
+          answerContent.innerHTML = `<div style="color: var(--accent-rose); padding: 12px; background: rgba(244, 63, 94, 0.08); border-radius: var(--radius-sm); border: 1px solid rgba(244, 63, 94, 0.25);"><strong>Query Error:</strong> ${err.message}</div>`;
+        }
+      } finally {
+        clearTimeout(timeoutId);
+        activeAbortController = null;
+        setQueryRunning(false);
+      }
+    }
+
+    // Copy answer to clipboard
+    function copyAnswer() {
+      if (!latestAnswerMarkdown) return;
+      navigator.clipboard.writeText(latestAnswerMarkdown).then(() => {
+        copyBtn.innerText = '✓ Copied!';
+        setTimeout(() => copyBtn.innerText = 'Copy Answer', 2000);
+      });
+    }
+
+    // Allow Ctrl+Enter or Cmd+Enter to submit
+    queryInput.addEventListener('keydown', (e) => {
+      if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+        executeRagQuery();
+      }
+    });
+
+    // Initialization
+    updateAuthStateUI();
+  </script>
+</body>
+</html>
